@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Over99 — Frontend Demo · Jaivik Parekh</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0B0E; --surface: #111318; --surface2: #1A1D24; --border: #252830;
+  --gold: #F5C842; --gold-dim: rgba(245,200,66,0.1); --gold-border: rgba(245,200,66,0.25);
+  --green: #00D26A; --green-dim: rgba(0,210,106,0.1); --green-border: rgba(0,210,106,0.22);
+  --red: #FF4D4D; --red-dim: rgba(255,77,77,0.1); --red-border: rgba(255,77,77,0.22);
+  --blue: #4F8EF7; --blue-dim: rgba(79,142,247,0.1); --blue-border: rgba(79,142,247,0.22);
+  --purple: #A855F7; --purple-dim: rgba(168,85,247,0.1);
+  --text: #F0F2F8; --text-mid: #8892A4; --text-dim: #4A5260;
+  --sans: 'Inter', system-ui, sans-serif; --mono: 'JetBrains Mono', monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;background:var(--bg);}
+body{font-family:var(--sans);color:var(--text);font-size:13px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+
+/* TOPBAR */
+.topbar{height:52px;background:#0D0F14;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;}
+.logo{font-size:16px;font-weight:900;letter-spacing:-0.04em;background:linear-gradient(135deg,#F5C842,#FF8C42);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.logo-sub{font-size:9px;font-weight:600;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-left:2px;}
+.tabs{display:flex;gap:2px;margin-left:12px;}
+.tab{padding:5px 14px;border-radius:6px;font-size:12px;font-weight:500;color:var(--text-mid);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:all 0.15s;}
+.tab.active{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);font-weight:600;}
+.tab:hover:not(.active){background:var(--surface2);color:var(--text);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.balance-chip{display:flex;align-items:center;gap:6px;background:var(--gold-dim);border:1px solid var(--gold-border);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:700;color:var(--gold);font-family:var(--mono);}
+.built-by{font-size:9px;color:var(--text-dim);font-family:var(--mono);}
+
+/* MAIN */
+.main{flex:1;display:flex;overflow:hidden;}
+.page{flex:1;display:none;overflow:hidden;}
+.page.active{display:flex;}
+
+/* SIDEBAR */
+.sidebar{width:196px;background:#0D0F14;border-right:1px solid var(--border);padding:10px 8px;overflow-y:auto;flex-shrink:0;}
+.sl{font-size:9px;font-weight:700;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin:14px 8px 4px;display:block;}
+.sl:first-child{margin-top:2px;}
+.slink{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text-mid);transition:all 0.12s;}
+.slink:hover{background:var(--surface2);}
+.slink.active{background:var(--gold-dim);color:var(--gold);font-weight:600;border:1px solid var(--gold-border);}
+.sicon{font-size:13px;width:18px;text-align:center;}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:18px 20px;}
+.page-title{font-size:18px;font-weight:800;letter-spacing:-0.03em;margin-bottom:2px;}
+.page-sub{font-size:11px;color:var(--text-dim);margin-bottom:16px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;position:relative;overflow:hidden;}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat.gold::before{background:linear-gradient(90deg,var(--gold),transparent);}
+.stat.green::before{background:linear-gradient(90deg,var(--green),transparent);}
+.stat.blue::before{background:linear-gradient(90deg,var(--blue),transparent);}
+.stat.purple::before{background:linear-gradient(90deg,var(--purple),transparent);}
+.stat-label{font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:3px;}
+.stat-val{font-family:var(--mono);font-size:20px;font-weight:700;line-height:1;}
+.stat-sub{font-size:10px;color:var(--text-dim);margin-top:2px;}
+
+/* PANEL */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px;}
+.panel-hdr{padding:9px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2);}
+.panel-title{font-size:11px;font-weight:700;color:var(--text-mid);text-transform:uppercase;letter-spacing:0.06em;}
+.panel-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;background:var(--green-dim);color:var(--green);border:1px solid var(--green-border);}
+.pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;display:inline-block;}
+.p-g{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border);}
+.p-r{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border);}
+.p-b{background:var(--blue-dim);color:var(--blue);border:1px solid var(--blue-border);}
+.p-gold{background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border);}
+.mono{font-family:var(--mono);font-weight:600;}
+
+/* DICE GAME */
+.game-wrap{display:flex;gap:16px;height:100%;}
+.game-main{flex:1;display:flex;flex-direction:column;gap:12px;overflow-y:auto;padding:18px 20px;}
+.game-sidebar{width:260px;background:#0D0F14;border-left:1px solid var(--border);padding:14px;overflow-y:auto;flex-shrink:0;}
+
+.dice-board{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center;}
+.dice-title{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:16px;}
+.dice-range{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px;}
+.range-val{font-family:var(--mono);font-size:32px;font-weight:900;color:var(--gold);}
+.range-label{font-size:11px;color:var(--text-dim);font-weight:600;}
+.dice-slider{width:100%;-webkit-appearance:none;height:4px;border-radius:2px;outline:none;cursor:pointer;margin-bottom:20px;}
+.dice-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--gold);cursor:pointer;box-shadow:0 0 8px rgba(245,200,66,0.5);}
+.dice-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;}
+.dice-stat{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center;}
+.dice-stat-label{font-size:9px;color:var(--text-dim);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;}
+.dice-stat-val{font-family:var(--mono);font-size:15px;font-weight:700;}
+.roll-btn{width:100%;padding:14px;background:linear-gradient(135deg,#F5C842,#FF8C42);border:none;border-radius:8px;font-size:14px;font-weight:800;color:#0A0B0E;cursor:pointer;letter-spacing:-0.02em;transition:opacity 0.15s;font-family:var(--sans);}
+.roll-btn:hover{opacity:0.9;}
+.roll-btn:disabled{opacity:0.5;cursor:not-allowed;}
+
+.result-display{height:80px;display:flex;align-items:center;justify-content:center;border-radius:10px;border:1px solid var(--border);background:var(--surface2);font-family:var(--mono);font-size:48px;font-weight:900;transition:all 0.3s;}
+.result-display.win{border-color:var(--green);background:var(--green-dim);color:var(--green);}
+.result-display.lose{border-color:var(--red);background:var(--red-dim);color:var(--red);}
+
+.bet-input-wrap{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.bet-label{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;}
+.bet-input{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:9px 12px;font-family:var(--mono);font-size:14px;font-weight:700;color:var(--gold);width:100%;outline:none;}
+.bet-input:focus{border-color:var(--gold);}
+.bet-btns{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:4px;margin-bottom:12px;}
+.bet-btn{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:6px;font-size:11px;font-weight:700;color:var(--text-mid);cursor:pointer;font-family:var(--sans);transition:all 0.1s;}
+.bet-btn:hover{background:var(--gold-dim);color:var(--gold);border-color:var(--gold-border);}
+
+.history-list{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;}
+.history-item{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;border-radius:6px;background:var(--surface2);font-size:11px;}
+.history-item.win{border-left:2px solid var(--green);}
+.history-item.lose{border-left:2px solid var(--red);}
+
+/* WALLET */
+.wallet-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.wallet-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.wallet-title{font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;}
+.wallet-bal{font-family:var(--mono);font-size:28px;font-weight:900;color:var(--gold);margin-bottom:4px;}
+.wallet-sub{font-size:11px;color:var(--text-dim);}
+.wallet-action{width:100%;margin-top:12px;padding:9px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);border:none;transition:all 0.15s;}
+.wa-dep{background:var(--green);color:#fff;}
+.wa-wit{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
+table{width:100%;border-collapse:collapse;}
+th{font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;padding:7px 12px;text-align:left;border-bottom:1px solid var(--border);}
+td{padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--surface2);}
+
+/* LIVE FEED */
+.live-wrap{display:grid;grid-template-columns:1fr 280px;gap:12px;height:100%;padding:18px 20px;}
+.feed-list{display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
+.feed-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:8px;animation:slideIn 0.3s ease;font-size:12px;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.feed-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.feed-info{flex:1;}
+.feed-name{font-weight:600;margin-bottom:1px;}
+.feed-game{color:var(--text-dim);font-size:11px;}
+.feed-amount{font-family:var(--mono);font-weight:700;text-align:right;}
+.feed-amount.win{color:var(--green);}
+.feed-amount.lose{color:var(--red);}
+.ws-indicator{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--green);font-family:var(--mono);}
+.ws-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+.statusbar{height:24px;background:#0D0F14;border-top:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:16px;flex-shrink:0;}
+.sb{font-family:var(--mono);font-size:9px;color:var(--text-dim);}
+.sb.live{color:var(--green);}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:baseline;gap:6px;">
+    <div class="logo">Over99</div>
+    <div class="logo-sub">Casino Platform</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="show('lobby',this)">🎰 Lobby</button>
+    <button class="tab" onclick="show('dice',this)">🎲 Dice</button>
+    <button class="tab" onclick="show('wallet',this)">💎 Wallet</button>
+    <button class="tab" onclick="show('live',this)">⚡ Live Feed</button>
+  </div>
+  <div class="topbar-right">
+    <div class="balance-chip" id="top-balance">⬡ 2,840.00 USDT</div>
+    <div class="built-by">built by jaivik · before applying</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- LOBBY -->
+  <div class="page active" id="page-lobby">
+    <div class="sidebar">
+      <span class="sl">Games</span>
+      <div class="slink active"><span class="sicon">🎰</span>All Games</div>
+      <div class="slink" onclick="show('dice',document.querySelectorAll('.tab')[1])"><span class="sicon">🎲</span>Dice</div>
+      <div class="slink" onclick="toast('🃏','Blackjack coming soon')"><span class="sicon">🃏</span>Blackjack</div>
+      <div class="slink" onclick="toast('🎡','Roulette coming soon')"><span class="sicon">🎡</span>Roulette</div>
+      <div class="slink" onclick="toast('💣','Mines coming soon')"><span class="sicon">💣</span>Mines</div>
+      <span class="sl">Account</span>
+      <div class="slink" onclick="show('wallet',document.querySelectorAll('.tab')[2])"><span class="sicon">💎</span>Wallet</div>
+      <div class="slink" onclick="toast('📊','Stats coming soon')"><span class="sicon">📊</span>Statistics</div>
+      <div class="slink" onclick="toast('🎁','Bonuses coming soon')"><span class="sicon">🎁</span>Bonuses</div>
+      <span class="sl">Live</span>
+      <div class="slink" onclick="show('live',document.querySelectorAll('.tab')[3])"><span class="sicon">⚡</span>Live Feed</div>
+    </div>
+    <div class="content">
+      <div class="page-title">Welcome back, Jaivik</div>
+      <div class="page-sub">React · TypeScript · WebSocket · Socket.IO · GSAP · Pinia · Redis · RabbitMQ</div>
+      <div class="stats">
+        <div class="stat gold"><div class="stat-label">Balance</div><div class="stat-val" style="color:var(--gold)" id="lobby-balance">2,840.00</div><div class="stat-sub">USDT</div></div>
+        <div class="stat green"><div class="stat-label">Total Won</div><div class="stat-val" style="color:var(--green)">14,220</div><div class="stat-sub">USDT all time</div></div>
+        <div class="stat blue"><div class="stat-label">Win Rate</div><div class="stat-val" style="color:var(--blue)">54.2%</div><div class="stat-sub">last 30 days</div></div>
+        <div class="stat purple"><div class="stat-label">Live Players</div><div class="stat-val" style="color:var(--purple)" id="live-players">1,847</div><div class="stat-sub">online now</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Featured Games</div><div class="panel-badge">● LIVE</div></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px;">
+          <div onclick="show('dice',document.querySelectorAll('.tab')[1])" style="background:linear-gradient(135deg,#1A1D24,#252830);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">
+            <div style="font-size:32px;margin-bottom:8px;">🎲</div>
+            <div style="font-weight:700;margin-bottom:3px;">Dice</div>
+            <div style="font-size:10px;color:var(--text-dim);">1% house edge</div>
+            <div style="margin-top:8px;"><span class="pill p-g">Play Now</span></div>
+          </div>
+          <div onclick="toast('🃏','Blackjack — coming soon')" style="background:linear-gradient(135deg,#1A1D24,#252830);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;">
+            <div style="font-size:32px;margin-bottom:8px;">🃏</div>
+            <div style="font-weight:700;margin-bottom:3px;">Blackjack</div>
+            <div style="font-size:10px;color:var(--text-dim);">0.5% house edge</div>
+            <div style="margin-top:8px;"><span class="pill p-b">Soon</span></div>
+          </div>
+          <div onclick="toast('🎡','Roulette — coming soon')" style="background:linear-gradient(135deg,#1A1D24,#252830);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;">
+            <div style="font-size:32px;margin-bottom:8px;">🎡</div>
+            <div style="font-weight:700;margin-bottom:3px;">Roulette</div>
+            <div style="font-size:10px;color:var(--text-dim);">2.7% house edge</div>
+            <div style="margin-top:8px;"><span class="pill p-b">Soon</span></div>
+          </div>
+          <div onclick="toast('💣','Mines — coming soon')" style="background:linear-gradient(135deg,#1A1D24,#252830);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;">
+            <div style="font-size:32px;margin-bottom:8px;">💣</div>
+            <div style="font-weight:700;margin-bottom:3px;">Mines</div>
+            <div style="font-size:10px;color:var(--text-dim);">Variable edge</div>
+            <div style="margin-top:8px;"><span class="pill p-b">Soon</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Recent Bets</div><div class="ws-indicator"><div class="ws-dot"></div>Socket.IO live</div></div>
+        <table>
+          <tr><th>Game</th><th>Bet</th><th>Multiplier</th><th>Profit</th><th>Result</th></tr>
+          <tr><td>🎲 Dice</td><td class="mono">100 USDT</td><td class="mono">1.98×</td><td class="mono" style="color:var(--green)">+98.00</td><td><span class="pill p-g">WIN</span></td></tr>
+          <tr><td>🎲 Dice</td><td class="mono">50 USDT</td><td class="mono">1.98×</td><td class="mono" style="color:var(--red)">-50.00</td><td><span class="pill p-r">LOSE</span></td></tr>
+          <tr><td>🎲 Dice</td><td class="mono">200 USDT</td><td class="mono">1.98×</td><td class="mono" style="color:var(--green)">+196.00</td><td><span class="pill p-g">WIN</span></td></tr>
+          <tr><td>🎲 Dice</td><td class="mono">75 USDT</td><td class="mono">1.98×</td><td class="mono" style="color:var(--red)">-75.00</td><td><span class="pill p-r">LOSE</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- DICE GAME -->
+  <div class="page" id="page-dice">
+    <div class="game-main">
+      <div>
+        <div class="page-title">🎲 Dice</div>
+        <div class="page-sub">Socket.IO real-time · optimistic UI · GSAP animations · event-driven state</div>
+      </div>
+      <div class="dice-board">
+        <div class="dice-title">Roll Result</div>
+        <div class="result-display" id="result-display">—</div>
+        <div style="margin-top:16px;margin-bottom:8px;">
+          <div class="dice-title">WIN IF ROLL IS UNDER</div>
+          <div class="dice-range">
+            <div>
+              <div class="range-val" id="range-val">50.00</div>
+              <div class="range-label">Target</div>
+            </div>
+          </div>
+          <input type="range" class="dice-slider" id="dice-slider" min="2" max="98" value="50" style="background:linear-gradient(to right,var(--green) 0%,var(--green) 50%,var(--surface2) 50%,var(--surface2) 100%)">
+        </div>
+        <div class="dice-stats">
+          <div class="dice-stat">
+            <div class="dice-stat-label">Win Chance</div>
+            <div class="dice-stat-val" id="win-chance" style="color:var(--green)">49.50%</div>
+          </div>
+          <div class="dice-stat">
+            <div class="dice-stat-label">Multiplier</div>
+            <div class="dice-stat-val" id="multiplier" style="color:var(--gold)">1.98×</div>
+          </div>
+          <div class="dice-stat">
+            <div class="dice-stat-label">House Edge</div>
+            <div class="dice-stat-val" style="color:var(--text-mid)">1.00%</div>
+          </div>
+        </div>
+        <button class="roll-btn" id="roll-btn" onclick="rollDice()">ROLL DICE</button>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Bet History</div><div class="ws-indicator"><div class="ws-dot"></div>live</div></div>
+        <div style="padding:10px 12px;" id="history-list">
+          <div style="text-align:center;color:var(--text-dim);font-size:12px;padding:12px 0;">Roll to start your session</div>
+        </div>
+      </div>
+    </div>
+    <div class="game-sidebar">
+      <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;">Place Bet</div>
+      <div class="bet-input-wrap">
+        <div class="bet-label">Bet Amount (USDT)</div>
+        <input class="bet-input" id="bet-input" type="number" value="100" min="1" max="10000">
+      </div>
+      <div class="bet-btns">
+        <button class="bet-btn" onclick="setBet(0.5)">½</button>
+        <button class="bet-btn" onclick="setBet(2)">2×</button>
+        <button class="bet-btn" onclick="document.getElementById('bet-input').value=100">Min</button>
+        <button class="bet-btn" onclick="document.getElementById('bet-input').value=Math.floor(balance)">Max</button>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+          <span style="color:var(--text-dim)">Balance</span>
+          <span class="mono" style="color:var(--gold)" id="sidebar-balance">2,840.00 USDT</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;font-size:11px;">
+          <span style="color:var(--text-dim)">Session W/L</span>
+          <span class="mono" id="session-pnl" style="color:var(--text-mid)">+0.00</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;">
+          <span style="color:var(--text-dim)">Rolls this session</span>
+          <span class="mono" id="roll-count">0</span>
+        </div>
+      </div>
+      <div style="font-size:10px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">Stats</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:10px;text-align:center;">
+          <div style="font-size:9px;color:var(--text-dim);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.06em;">Wins</div>
+          <div class="mono" style="font-size:16px;color:var(--green)" id="win-count">0</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:10px;text-align:center;">
+          <div style="font-size:9px;color:var(--text-dim);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.06em;">Losses</div>
+          <div class="mono" style="font-size:16px;color:var(--red)" id="loss-count">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WALLET -->
+  <div class="page" id="page-wallet">
+    <div class="content">
+      <div class="page-title">Wallet</div>
+      <div class="page-sub">Multi-asset · real-time balance sync · WebSocket updates · optimistic state management</div>
+      <div class="wallet-grid" style="margin-bottom:12px;">
+        <div class="wallet-card">
+          <div class="wallet-title">Total Balance</div>
+          <div class="wallet-bal" id="wallet-main-bal">2,840.00</div>
+          <div class="wallet-sub">USDT · updated live</div>
+          <button class="wallet-action wa-dep" onclick="deposit()">+ Deposit</button>
+        </div>
+        <div class="wallet-card">
+          <div class="wallet-title">Crypto Holdings</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:7px;">
+              <div style="display:flex;align-items:center;gap:8px;"><div style="font-size:16px;">₿</div><div><div style="font-weight:600;font-size:12px;">Bitcoin</div><div style="font-size:10px;color:var(--text-dim)">BTC</div></div></div>
+              <div style="text-align:right;"><div class="mono" style="font-size:12px;color:var(--gold)">0.0420</div><div style="font-size:10px;color:var(--text-dim)">≈ $2,814</div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surface2);border-radius:7px;">
+              <div style="display:flex;align-items:center;gap:8px;"><div style="font-size:16px;">Ξ</div><div><div style="font-weight:600;font-size:12px;">Ethereum</div><div style="font-size:10px;color:var(--text-dim)">ETH</div></div></div>
+              <div style="text-align:right;"><div class="mono" style="font-size:12px;color:var(--blue)">0.480</div><div style="font-size:10px;color:var(--text-dim)">≈ $1,440</div></div>
+            </div>
+          </div>
+          <button class="wallet-action wa-wit" style="margin-top:8px;" onclick="toast('💸','Withdraw coming soon')">Withdraw</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Transaction History</div><div class="ws-indicator"><div class="ws-dot"></div>real-time</div></div>
+        <table>
+          <tr><th>Type</th><th>Amount</th><th>Asset</th><th>Status</th><th>Time</th></tr>
+          <tr><td><span class="pill p-g">Deposit</span></td><td class="mono">+1,000.00</td><td>USDT</td><td><span class="pill p-g">Confirmed</span></td><td style="color:var(--text-dim)">2m ago</td></tr>
+          <tr><td><span class="pill p-gold">Win</span></td><td class="mono" style="color:var(--green)">+196.00</td><td>USDT</td><td><span class="pill p-g">Settled</span></td><td style="color:var(--text-dim)">8m ago</td></tr>
+          <tr><td><span class="pill p-r">Bet</span></td><td class="mono" style="color:var(--red)">-200.00</td><td>USDT</td><td><span class="pill p-g">Settled</span></td><td style="color:var(--text-dim)">8m ago</td></tr>
+          <tr><td><span class="pill p-gold">Win</span></td><td class="mono" style="color:var(--green)">+98.00</td><td>USDT</td><td><span class="pill p-g">Settled</span></td><td style="color:var(--text-dim)">15m ago</td></tr>
+          <tr><td><span class="pill p-g">Deposit</span></td><td class="mono">+2,000.00</td><td>USDT</td><td><span class="pill p-g">Confirmed</span></td><td style="color:var(--text-dim)">1h ago</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE FEED -->
+  <div class="page" id="page-live">
+    <div class="live-wrap">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div>
+            <div class="page-title">⚡ Live Bets</div>
+            <div class="page-sub">Socket.IO · event-driven · real-time across 1,847 players</div>
+          </div>
+          <div class="ws-indicator"><div class="ws-dot"></div>WebSocket connected</div>
+        </div>
+        <div class="feed-list" id="feed-list"></div>
+      </div>
+      <div>
+        <div class="panel" style="margin-bottom:12px;">
+          <div class="panel-hdr"><div class="panel-title">Platform Stats</div></div>
+          <div style="padding:12px;display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-dim)">Active Players</span>
+              <span class="mono" style="color:var(--green)" id="active-players">1,847</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-dim)">Bets / minute</span>
+              <span class="mono" id="bets-per-min">284</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-dim)">Volume (24h)</span>
+              <span class="mono" style="color:var(--gold)">$4.2M</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-dim)">Biggest win today</span>
+              <span class="mono" style="color:var(--green)">+$84,200</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;">
+              <span style="color:var(--text-dim)">Socket latency</span>
+              <span class="mono" id="latency">12ms</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-hdr"><div class="panel-title">Top Winners Today</div></div>
+          <table>
+            <tr><th>#</th><th>Player</th><th>Profit</th></tr>
+            <tr><td style="color:var(--gold);font-weight:700">1</td><td>whale_** </td><td class="mono" style="color:var(--green)">+$84.2K</td></tr>
+            <tr><td style="color:var(--text-mid)">2</td><td>lucky7**</td><td class="mono" style="color:var(--green)">+$21.8K</td></tr>
+            <tr><td style="color:var(--text-mid)">3</td><td>crypto**</td><td class="mono" style="color:var(--green)">+$14.1K</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="statusbar">
+  <div class="sb live">● Socket.IO connected · 12ms</div>
+  <div class="sb">React · Vue 3 · TypeScript · Socket.IO · WebSocket · GSAP · Tailwind · Node.js · Redis · RabbitMQ · Pinia · React Query</div>
+  <div class="sb" style="margin-left:auto">Jaivik Parekh · jaivikparekh1320@gmail.com · Built before applying to Over99</div>
+</div>
+
+<script>
+let balance = 2840;
+let sessionPnL = 0;
+let rollCount = 0;
+let wins = 0;
+let losses = 0;
+let rolling = false;
+let history = [];
+
+// Slider
+const slider = document.getElementById('dice-slider');
+slider.addEventListener('input', function() {
+  const v = parseFloat(this.value);
+  document.getElementById('range-val').textContent = v.toFixed(2);
+  document.getElementById('win-chance').textContent = (v - 0.5).toFixed(2) + '%';
+  const mult = (100 / (v - 0.5) * 0.99).toFixed(4);
+  document.getElementById('multiplier').textContent = parseFloat(mult).toFixed(2) + '×';
+  const pct = (v - 2) / 96 * 100;
+  this.style.background = `linear-gradient(to right,var(--green) 0%,var(--green) ${pct}%,var(--surface2) ${pct}%,var(--surface2) 100%)`;
+});
+
+function rollDice() {
+  if(rolling) return;
+  const bet = parseFloat(document.getElementById('bet-input').value);
+  if(!bet || bet <= 0 || bet > balance) {
+    toast('⚠️', bet > balance ? 'Insufficient balance' : 'Enter a valid bet');
+    return;
+  }
+  rolling = true;
+  const btn = document.getElementById('roll-btn');
+  btn.disabled = true;
+  btn.textContent = 'ROLLING...';
+  const disp = document.getElementById('result-display');
+  disp.className = 'result-display';
+  disp.textContent = '—';
+
+  let ticks = 0;
+  const target = parseFloat(slider.value);
+  const interval = setInterval(() => {
+    disp.textContent = (Math.random() * 100).toFixed(2);
+    ticks++;
+    if(ticks >= 12) {
+      clearInterval(interval);
+      const result = (Math.random() * 100).toFixed(2);
+      const won = parseFloat(result) < target;
+      disp.textContent = result;
+      const mult = parseFloat((100 / (target - 0.5) * 0.99).toFixed(4));
+
+      if(won) {
+        const profit = bet * mult - bet;
+        balance += profit;
+        sessionPnL += profit;
+        wins++;
+        disp.className = 'result-display win';
+        addHistory(result, bet, profit, true);
+        playWinAnim();
+      } else {
+        balance -= bet;
+        sessionPnL -= bet;
+        losses++;
+        disp.className = 'result-display lose';
+        addHistory(result, bet, -bet, false);
+      }
+      rollCount++;
+      updateBalanceDisplay();
+      btn.disabled = false;
+      btn.textContent = 'ROLL DICE';
+      rolling = false;
+    }
+  }, 60);
+}
+
+function playWinAnim() {
+  const disp = document.getElementById('result-display');
+  disp.style.transform = 'scale(1.06)';
+  setTimeout(() => { disp.style.transform = 'scale(1)'; }, 200);
+}
+
+function addHistory(result, bet, pnl, won) {
+  history.unshift({ result, bet, pnl, won });
+  if(history.length > 20) history.pop();
+  const list = document.getElementById('history-list');
+  list.innerHTML = history.map(h => `
+    <div class="history-item ${h.won?'win':'lose'}" style="margin-bottom:4px;">
+      <span class="mono" style="color:${h.won?'var(--green)':'var(--red)'}">${h.result}</span>
+      <span style="color:var(--text-dim);font-size:11px;">bet ${h.bet.toFixed(2)}</span>
+      <span class="mono" style="color:${h.won?'var(--green)':'var(--red)'}">${h.won?'+':''}${h.pnl.toFixed(2)}</span>
+      <span class="pill ${h.won?'p-g':'p-r'}">${h.won?'WIN':'LOSE'}</span>
+    </div>
+  `).join('');
+}
+
+function updateBalanceDisplay() {
+  const fmt = balance.toFixed(2);
+  document.getElementById('top-balance').textContent = '⬡ ' + fmt + ' USDT';
+  document.getElementById('sidebar-balance').textContent = fmt + ' USDT';
+  document.getElementById('lobby-balance').textContent = fmt;
+  document.getElementById('wallet-main-bal').textContent = fmt;
+  document.getElementById('win-count').textContent = wins;
+  document.getElementById('loss-count').textContent = losses;
+  document.getElementById('roll-count').textContent = rollCount;
+  const pnl = document.getElementById('session-pnl');
+  pnl.textContent = (sessionPnL >= 0 ? '+' : '') + sessionPnL.toFixed(2);
+  pnl.style.color = sessionPnL >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+function setBet(mult) {
+  const inp = document.getElementById('bet-input');
+  inp.value = (parseFloat(inp.value) * mult).toFixed(0);
+}
+
+function deposit() {
+  balance += 1000;
+  updateBalanceDisplay();
+  toast('💎', 'Deposited 1,000 USDT');
+}
+
+// Live feed
+const names = ['whale_88','lucky7x','crypto_k','satoshi**','moon_bet','degen_99','btc_lord','eth_max'];
+const games = ['🎲 Dice','🃏 Blackjack','🎡 Roulette','💣 Mines'];
+const emojis = ['🔥','💎','⚡','🚀','🎯'];
+
+function addFeedItem() {
+  const won = Math.random() > 0.48;
+  const bet = (Math.random() * 500 + 10).toFixed(2);
+  const mult = (Math.random() * 10 + 1.5).toFixed(2);
+  const profit = won ? (parseFloat(bet) * parseFloat(mult) - parseFloat(bet)).toFixed(2) : (-parseFloat(bet)).toFixed(2);
+  const name = names[Math.floor(Math.random() * names.length)];
+  const game = games[Math.floor(Math.random() * games.length)];
+  const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+  const list = document.getElementById('feed-list');
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.innerHTML = `
+    <div class="feed-avatar" style="background:${won?'var(--green-dim)':'var(--red-dim)'};">${emoji}</div>
+    <div class="feed-info">
+      <div class="feed-name">${name}</div>
+      <div class="feed-game">${game} · ${bet} USDT @ ${mult}×</div>
+    </div>
+    <div class="feed-amount ${won?'win':'lose'}">${won?'+':''}${profit}</div>
+    <span class="pill ${won?'p-g':'p-r'}">${won?'WIN':'LOSE'}</span>
+  `;
+  list.insertBefore(item, list.firstChild);
+  while(list.children.length > 18) list.removeChild(list.lastChild);
+}
+
+// Init feed
+for(let i = 0; i < 10; i++) addFeedItem();
+setInterval(addFeedItem, 1200);
+
+// Animate live stats
+setInterval(() => {
+  const p = document.getElementById('live-players');
+  const curr = parseInt(p.textContent.replace(',',''));
+  const delta = Math.floor(Math.random() * 6) - 2;
+  const next = Math.max(1800, curr + delta);
+  p.textContent = next.toLocaleString();
+  document.getElementById('active-players').textContent = next.toLocaleString();
+  document.getElementById('bets-per-min').textContent = Math.floor(Math.random() * 40 + 260);
+  document.getElementById('latency').textContent = Math.floor(Math.random() * 8 + 9) + 'ms';
+}, 2000);
+
+function show(v, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if(el && el.classList) el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + v).classList.add('active');
+}
+
+function toast(icon, msg) {
+  var ex = document.querySelector('.t-el'); if(ex) ex.remove();
+  var t = document.createElement('div'); t.className = 't-el';
+  t.style.cssText = 'position:fixed;bottom:32px;right:16px;background:#1A1D24;border:1px solid var(--border);color:var(--text);border-radius:9px;padding:9px 14px;display:flex;align-items:center;gap:8px;font-size:12px;z-index:9999;box-shadow:0 4px 24px rgba(0,0,0,0.4);transform:translateX(120%);transition:transform 0.25s;font-family:Inter,sans-serif;';
+  t.innerHTML = '<span style="font-size:14px">' + icon + '</span><span>' + msg + '</span>';
+  document.body.appendChild(t);
+  requestAnimationFrame(() => requestAnimationFrame(() => { t.style.transform = 'translateX(0)'; }));
+  setTimeout(() => { t.style.transform = 'translateX(120%)'; setTimeout(() => t.remove(), 300); }, 2800);
+}
+</script>
+</body>
+</html>
